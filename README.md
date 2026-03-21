@@ -2,6 +2,45 @@
 
 ## Prerequisites
 
+Create cluster:
+
+```bash
+task cluster-create
+```
+
+## Examples
+
+### Ingress NGINX
+
+### Gateway API
+
+Provision cloud provider:
+
+```bash
+task cloud-provider-setup
+```
+
+Create echo application:
+
+```bash
+task app-echo-create
+```
+
+Check echo application:
+
+```bash
+task docker-debug
+root@home-lab-control-plane:/# curl -H 'Host: echo.example.com' -v 172.18.0.3
+```
+
+## Cleanup
+
+```bash
+task cloud-provider-delete
+task cluster-delete
+task docker-clean
+```
+
 ## Links
 
 * [Kubernetes Ingress NGINX](https://github.com/kubernetes/ingress-nginx)
