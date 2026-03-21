@@ -12,7 +12,27 @@ task cluster-create
 
 ### Ingress NGINX
 
+Provision Ingress NGINX:
+
+```bash
+task cluster-ingress-setup
+```
+
+Create podinfo application:
+
+```bash
+task app-podinfo-create
+```
+
+Check podinfo application:
+
+```bash
+task app-podinfo-check
+```
+
 ### Gateway API
+
+#### Kubernetes Cloud Provider for KIND
 
 Provision cloud provider:
 
@@ -36,7 +56,7 @@ Check echo application:
 
 ```bash
 task docker-debug
-root@home-lab-control-plane:/# curl -H 'Host: echo.example.com' -v 172.18.0.3
+root@home-lab-control-plane:/# curl -H 'Host: echo.example.gateway.kind.com' -v 172.18.0.3
 ```
 
 ## Cleanup
@@ -53,6 +73,7 @@ task docker-clean
 * [Istio - Kubernetes Gateway API](https://istio.io/latest/docs/tasks/traffic-management/ingress/gateway-api/)
 * [Configure Istio ingress with the Kubernetes Gateway API for Azure Kubernetes Service (AKS)](https://learn.microsoft.com/en-us/azure/aks/istio-gateway-api)
 * [Experimenting with Gateway API using kind](https://kubernetes.io/blog/2026/01/28/experimenting-gateway-api-with-kind/)
+* [Kubernetes Cloud Provider for KIND](https://github.com/kubernetes-sigs/cloud-provider-kind)
 * [Building a Modern Kubernetes Ingress with Istio Gateway API: A Complete Guide](https://medium.com/@guptaaayush8/building-a-modern-kubernetes-ingress-with-istio-gateway-api-a-complete-guide-1a8897629f55)
 * [Setting up Istio Ingress With Kubernetes Gateway API](https://devopscube.com/istio-ingress-kubernetes-gateway-api/)
 * [Configure helloworld using the Kubernetes Gateway API](https://github.com/istio/istio/blob/master/samples/helloworld/gateway-api/README.md)

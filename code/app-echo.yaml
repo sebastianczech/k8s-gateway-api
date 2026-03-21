@@ -60,7 +60,7 @@ spec:
   parentRefs:
   - name: gateway
     namespace: gateway-infra
-  hostnames: ["echo.example.com"]
+  hostnames: ["echo.example.gateway.kind.com"]
   rules:
   - matches:
     - path:
