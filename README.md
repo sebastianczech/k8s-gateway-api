@@ -55,7 +55,14 @@ task app-echo-create
 Check echo application:
 
 ```bash
-task docker-debug
+task app-echo-check
+```
+
+or inside home-lab-control-plane container:
+
+```bash
+kubectl get gateway -n gateway-infra gateway -o jsonpath='{.status.addresses[0].value}'
+docker exec -it home-lab-control-plane bash
 root@home-lab-control-plane:/# curl -H 'Host: echo.example.gateway.kind.com' -v 172.18.0.3
 ```
 

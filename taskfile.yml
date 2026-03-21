@@ -124,10 +124,6 @@ tasks:
           alpine/socat \
           TCP-LISTEN:80,fork TCP:172.18.0.3:80 || true"
       - "curl -H 'Host: echo.example.gateway.kind.com' http://localhost:8080"
-      # or inside home-lab-control-plane container:
-      # - kubectl get gateway -n gateway-infra gateway -o jsonpath='{.status.addresses[0].value}'
-      # - docker exec -it home-lab-control-plane bash
-      # - curl -H 'Host: echo.example.gateway.kind.com' -v 172.18.0.3
     dir: code
 
   app-echo-debug:
