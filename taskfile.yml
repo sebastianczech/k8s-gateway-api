@@ -58,6 +58,32 @@ tasks:
       - open https://localhost:8443
     dir: code
 
+  cloud-provider-setup:
+    cmds:
+      - VERSION="$(basename $(curl -s -L -o /dev/null -w '%{url_effective}' https://github.com/kubernetes-sigs/cloud-provider-kind/releases/latest))" && docker run -d --name cloud-provider-kind --rm --network host -v /var/run/docker.sock:/var/run/docker.sock registry.k8s.io/cloud-provider-kind/cloud-controller-manager:${VERSION}
+    dir: code
+
+  cloud-provider-check:
+    cmds:
+      - docker ps --filter name=cloud-provider-kind
+      # - docker logs cloud-provider-kind
+    dir: code
+
+  cloud-provider-delete:
+    cmds:
+      - docker stop cloud-provider-kind
+    dir: code
+
+  cluster-gateway-setup:
+    cmds:
+      - kubectl apply -f gateway-infra.yaml
+    dir: code
+
+  cluster-gateway-check:
+    cmds:
+      - kubectl get gateway -n gateway-infra gateway
+    dir: code
+
   app-podinfo-create:
     cmds:
       - kubectl apply -f app-podinfo.yaml
@@ -77,6 +103,29 @@ tasks:
     cmds:
       - "curl -kiv https://podinfo.example.com"
       - "curl -H 'Host: podinfo.example.com' localhost"
+
+  app-echo-create:
+    cmds:
+      - kubectl apply -f app-echo.yaml
+    dir: code
+
+  app-echo-port-forward:
+    cmds:
+      - kubectl port-forward svc/echo 3000:3000 -n demo
+    dir: code
+
+  app-echo-check:
+    cmds:
+      - export GW_ADDR=$(kubectl get gateway -n gateway-infra gateway -o jsonpath='{.status.addresses[0].value}')
+      - curl --resolve echo.example.com:80:${GW_ADDR} http://echo.example.com
+    dir: code
+
+  app-echo-debug:
+    cmds:
+      - kubectl get gateway -n gateway-infra gateway -o yaml
+      - kubectl get httproute -n demo echo -o yaml
+      - docker logs -f cloud-provider-kind
+    dir: code
 
   k9s:
     cmds:

@@ -1,6 +1,6 @@
 # Kubernetes Gateway API
 
-## Prequisites
+## Prerequisites
 
 ## Links
 
