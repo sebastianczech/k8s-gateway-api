@@ -1,0 +1,76 @@
+version: '3'
+
+tasks:
+  docker-clean:
+    cmds:
+      - docker image prune --all --force
+      - docker system prune --all --force
+
+  docker-debug:
+    cmds:
+      - docker exec -it home-lab-control-plane bash
+
+  cluster-create:
+    cmds:
+      - kind create cluster --config single-node-extra-port-mapping.yaml --name home-lab
+    dir: code
+
+  cluster-status:
+    cmds:
+      - kind get clusters
+      - kubectl get nodes -o wide
+    dir: code
+
+  cluster-delete:
+    cmds:
+      - kind delete cluster --name home-lab
+    dir: code
+
+  cluster-ingress-setup:
+    cmds:
+      - kubectl apply -f ingress-nginx.yaml
+      - openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=nginxsvc/O=nginxsvc"
+      - kubectl -n ingress-nginx create secret tls tls-secret --key tls.key --cert tls.crt || true
+      - "kubectl wait --namespace ingress-nginx \
+        --for=condition=ready pod \
+        --selector=app.kubernetes.io/component=controller \
+        --timeout=90s"
+      - kubectl -n ingress-nginx get services
+    dir: code
+
+  dashboard-ingress-setup:
+    cmds:
+      - helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+      - helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --create-namespace --namespace kubernetes-dashboard
+      - kubectl apply -f admin-user.yaml
+      - kubectl -n kubernetes-dashboard create token admin-user
+      - "kubectl wait --namespace kubernetes-dashboard \
+        --for=condition=ready pod \
+        --selector=app=kubernetes-dashboard-kong \
+        --timeout=90s"
+      - kubectl -n kubernetes-dashboard port-forward svc/kubernetes-dashboard-kong-proxy 8443:443
+    dir: code
+
+  app-podinfo-create:
+    cmds:
+      - kubectl apply -f app-podinfo.yaml
+    dir: code
+
+  app-podinfo-port-forward:
+    cmds:
+      - kubectl port-forward svc/podinfo 9898:9898
+    dir: code
+
+  app-podinfo-delete:
+    cmds:
+      - kubectl delete -f app-podinfo.yaml
+    dir: code
+
+  app-podinfo-check:
+    cmds:
+      - "curl -kiv https://podinfo.example.com"
+      - "curl -H 'podinfo.example.com' localhost"
+
+  k9s:
+    cmds:
+      - k9s
