@@ -117,3 +117,22 @@ spec:
       targetPort: grpc
       protocol: TCP
       name: grpc
+---
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: podinfo-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: podinfo.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: podinfo
+            port:
+              number: 9898

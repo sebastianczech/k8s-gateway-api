@@ -76,7 +76,7 @@ tasks:
   app-podinfo-check:
     cmds:
       - "curl -kiv https://podinfo.example.com"
-      - "curl -H 'podinfo.example.com' localhost"
+      - "curl -H 'Host: podinfo.example.com' localhost"
 
   k9s:
     cmds:
