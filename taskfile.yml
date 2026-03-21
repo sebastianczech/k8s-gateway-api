@@ -28,6 +28,7 @@ tasks:
 
   cluster-ingress-setup:
     cmds:
+      - kubectl label node home-lab-control-plane ingress-ready=true
       - kubectl apply -f ingress-nginx.yaml
       - openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=nginxsvc/O=nginxsvc"
       - kubectl -n ingress-nginx create secret tls tls-secret --key tls.key --cert tls.crt || true
@@ -38,7 +39,7 @@ tasks:
       - kubectl -n ingress-nginx get services
     dir: code
 
-  dashboard-ingress-setup:
+  dashboard-setup:
     cmds:
       - helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
       - helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --create-namespace --namespace kubernetes-dashboard
@@ -49,6 +50,12 @@ tasks:
         --selector=app=kubernetes-dashboard-kong \
         --timeout=90s"
       - kubectl -n kubernetes-dashboard port-forward svc/kubernetes-dashboard-kong-proxy 8443:443
+    dir: code
+
+  dashboard-access:
+    cmds:
+      - kubectl -n kubernetes-dashboard create token admin-user
+      - open https://localhost:8443
     dir: code
 
   app-podinfo-create:
