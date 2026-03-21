@@ -20,6 +20,12 @@ Provision cloud provider:
 task cloud-provider-setup
 ```
 
+Create cluster gateway:
+
+```bash
+task cluster-gateway-setup
+```
+
 Create echo application:
 
 ```bash
