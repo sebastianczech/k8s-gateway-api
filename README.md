@@ -30,6 +30,42 @@ Check podinfo application:
 task app-podinfo-check
 ```
 
+Traffic flow:
+
+```
+  macOS Terminal
+  │
+  │  curl -H 'Host: podinfo.example.com' http://localhost
+  │    (or: curl -kiv https://podinfo.example.com)
+  │
+  ▼
+  localhost:80 (or :443)
+  │  Kind extraPortMapping · maps macOS localhost ports to the Kind node container
+  ▼
+┌────────────────────────────────────────────────────────────────────────────┐
+│ Docker  (kind network · 172.18.0.0/16)                                     │
+│                                                                            │
+│  home-lab-control-plane  (KIND node · Docker container)                    │
+│  · containerPort :80/:443 bound directly via hostPort on the ingress pod   │
+│  │                                                                         │
+│ ┌──────────────────────────────────────────────────────────────────────┐   │
+│ │ Kubernetes cluster                                                   │   │
+│ │                                                                      │   │
+│ │  ns: ingress-nginx                                                   │   │
+│ │  ingress-nginx-controller pod  (hostPort: 80/443)                    │   │
+│ │  · IngressClass: nginx                                               │   │
+│ │  · terminates TLS (self-signed cert)                                 │   │
+│ │  · matches Host header against Ingress rules                         │   │
+│ │  │  Ingress: podinfo.example.com → podinfo svc :9898                 │   │
+│ │  ▼                                                                   │   │
+│ │  ns: default                                                         │   │
+│ │  podinfo svc :9898  ──►  podinfo pod  (ghcr.io/stefanprodan/podinfo) │   │
+│ │                          · responds with request details,            │   │
+│ │                            environment info, and metrics             │   │
+│ └──────────────────────────────────────────────────────────────────────┘   │
+└────────────────────────────────────────────────────────────────────────────┘
+```
+
 ### Gateway API
 
 #### Kubernetes Cloud Provider for KIND
@@ -56,6 +92,46 @@ Check echo application:
 
 ```bash
 task app-echo-kind-check
+```
+
+Traffic flow:
+
+```
+  macOS Terminal
+  │
+  │  curl -H 'Host: echo.example.gateway.kind.com' http://localhost:8080
+  │
+  ▼
+  localhost:8080
+  │  Docker port mapping · bridges macOS localhost into the kind network
+  ▼
+┌────────────────────────────────────────────────────────────────────────────┐
+│ Docker  (kind network · 172.18.0.0/16)                                     │
+│                                                                            │
+│  kind-gateway-proxy-kind  (socat container)                                │
+│  · forwards raw TCP from :80 into the kind network                         │
+│  :80  ──────────────────────────────────────────────►  172.18.0.x:80       │
+│                                                                  │         │
+│  kindccm-xxxxxxxxxx  (cloud-provider-kind · Envoy proxy)         │         │
+│  · Gateway implementation for KIND; assigned external IP         │         │
+│  · matches Host header against HTTPRoute rules                   │         │
+│  172.18.0.x:80  ◄────────────────────────────────────────────────┘         │
+│  │  routes directly to pod IP via kind network                             │
+│  ▼                                                                         │
+│ ┌──────────────────────────────────────────────────────────────────────┐   │
+│ │ Kubernetes cluster                                                   │   │
+│ │                                                                      │   │
+│ │  ns: gateway-infra-kind                                              │   │
+│ │  GatewayClass: cloud-provider-kind                                   │   │
+│ │  · hostname: *.example.gateway.kind.com                              │   │
+│ │  │  HTTPRoute: echo.example.gateway.kind.com → echo svc :3000        │   │
+│ │  ▼                                                                   │   │
+│ │  ns: demo                                                            │   │
+│ │  echo svc :3000  ──►  echo pod  (echo-basic)                         │   │
+│ │                       · responds with request details (path,         │   │
+│ │                         headers, pod name, namespace)                │   │
+│ └──────────────────────────────────────────────────────────────────────┘   │
+└────────────────────────────────────────────────────────────────────────────┘
 ```
 
 #### Istio Gateway API
