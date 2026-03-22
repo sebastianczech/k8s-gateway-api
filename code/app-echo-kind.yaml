@@ -59,7 +59,7 @@ metadata:
 spec:
   parentRefs:
   - name: gateway
-    namespace: gateway-infra
+    namespace: gateway-infra-kind
   hostnames: ["echo.example.gateway.kind.com"]
   rules:
   - matches:

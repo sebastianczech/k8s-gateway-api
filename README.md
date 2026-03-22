@@ -40,30 +40,22 @@ Provision cloud provider:
 task cloud-provider-setup
 ```
 
-Create cluster gateway:
+Create kind gateway:
 
 ```bash
-task cluster-gateway-setup
+task kind-gateway-setup
 ```
 
 Create echo application:
 
 ```bash
-task app-echo-create
+  task app-echo-kind-create
 ```
 
 Check echo application:
 
 ```bash
-task app-echo-check
-```
-
-or inside home-lab-control-plane container:
-
-```bash
-kubectl get gateway -n gateway-infra gateway -o jsonpath='{.status.addresses[0].value}'
-docker exec -it home-lab-control-plane bash
-root@home-lab-control-plane:/# curl -H 'Host: echo.example.gateway.kind.com' -v 172.18.0.3
+task app-echo-kind-check
 ```
 
 #### Istio Gateway API
@@ -87,12 +79,6 @@ task istio-gateway-setup
 ```
 
 Create echo application with Istio sidecar injection:
-
-```bash
-task app-echo-create
-```
-
-Configure HTTPRoute pointing to echo application:
 
 ```bash
 task app-echo-istio-create

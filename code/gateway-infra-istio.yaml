@@ -10,7 +10,7 @@ metadata:
   name: gateway
   namespace: gateway-infra-istio
 spec:
-  gatewayClassName: istio          # <-- key difference
+  gatewayClassName: istio
   listeners:
   - name: default
     hostname: "*.example.gateway.istio.com"

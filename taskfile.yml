@@ -79,14 +79,14 @@ tasks:
       - docker rm kind-gateway-proxy || true
     dir: code
 
-  cluster-gateway-setup:
+  kind-gateway-setup:
     cmds:
-      - kubectl apply -f gateway-infra.yaml
+      - kubectl apply -f gateway-infra-kind.yaml
     dir: code
 
-  cluster-gateway-check:
+  kind-gateway-check:
     cmds:
-      - kubectl get gateway -n gateway-infra gateway
+      - kubectl get gateway -n gateway-infra-kind gateway
     dir: code
 
   istio-setup:
@@ -129,29 +129,31 @@ tasks:
       - "curl -kiv https://podinfo.example.com"
       - "curl -H 'Host: podinfo.example.com' localhost"
 
-  app-echo-create:
+  app-echo-kind-create:
     cmds:
-      - kubectl apply -f app-echo.yaml
+      - kubectl apply -f app-echo-kind.yaml
     dir: code
 
-  app-echo-port-forward:
+  app-echo-kind-port-forward:
     cmds:
       - kubectl port-forward svc/echo 3000:3000 -n demo
     dir: code
 
-  app-echo-check:
+  app-echo-kind-check:
     cmds:
-      - "docker run -d --name kind-gateway-proxy \
-        --network kind \
-        -p 8080:80 \
-        alpine/socat \
-        TCP-LISTEN:80,fork TCP:172.18.0.3:80 || true"
+      - "docker rm -f kind-gateway-proxy-kind || true"
+      - "GATEWAY_IP=$(kubectl get gateway -n gateway-infra-kind gateway -o jsonpath='{.status.addresses[0].value}') &&
+          docker run -d --name kind-gateway-proxy-kind \
+          --network kind \
+          -p 8080:80 \
+          alpine/socat \
+          TCP-LISTEN:80,fork TCP:${GATEWAY_IP}:80"
       - "curl -H 'Host: echo.example.gateway.kind.com' http://localhost:8080"
     dir: code
 
-  app-echo-debug:
+  app-echo-kind-debug:
     cmds:
-      - kubectl get gateway -n gateway-infra gateway -o yaml
+      - kubectl get gateway -n gateway-infra-kind gateway -o yaml
       - kubectl get httproute -n demo echo -o yaml
       - docker logs -f cloud-provider-kind
     dir: code
