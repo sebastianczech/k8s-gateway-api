@@ -72,6 +72,9 @@ tasks:
   cloud-provider-delete:
     cmds:
       - docker stop cloud-provider-kind || true
+      - docker rm cloud-provider-kind || true
+      - docker stop kind-gateway-proxy-istio || true
+      - docker rm kind-gateway-proxy-istio || true
       - docker stop kind-gateway-proxy || true
       - docker rm kind-gateway-proxy || true
     dir: code
