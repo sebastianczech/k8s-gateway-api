@@ -160,11 +160,13 @@ tasks:
 
   app-echo-istio-check:
     cmds:
-      - "docker run -d --name kind-gateway-proxy-istio \
+      - "docker rm -f kind-gateway-proxy-istio || true"
+      - "GATEWAY_IP=$(kubectl get svc gateway-istio -n gateway-infra-istio -o jsonpath='{.status.loadBalancer.ingress[0].ip}') &&
+          docker run -d --name kind-gateway-proxy-istio \
           --network kind \
           -p 8081:80 \
           alpine/socat \
-          TCP-LISTEN:80,fork TCP:$(kubectl get gateway -n gateway-infra-istio gateway -o jsonpath='{.status.addresses[0].value}'):80 || true"
+          TCP-LISTEN:80,fork TCP:${GATEWAY_IP}:80"
       - "curl -H 'Host: echo.example.gateway.istio.com' http://localhost:8081"
     dir: code
 
