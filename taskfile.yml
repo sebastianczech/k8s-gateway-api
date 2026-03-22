@@ -86,6 +86,21 @@ tasks:
       - kubectl get gateway -n gateway-infra gateway
     dir: code
 
+  istio-setup:
+    cmds:
+      - helm repo add istio https://istio-release.storage.googleapis.com/charts
+      - helm repo update
+      - helm install istio-base istio/base -n istio-system --set defaultRevision=default --create-namespace
+      - helm install istiod istio/istiod -n istio-system --wait
+    dir: code
+
+  istio-check:
+    cmds:
+      - helm ls -n istio-system
+      - helm status istiod -n istio-system
+      - kubectl get deployments -n istio-system --output wide
+    dir: code
+
   app-podinfo-create:
     cmds:
       - kubectl apply -f app-podinfo.yaml
