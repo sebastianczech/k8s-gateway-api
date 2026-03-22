@@ -182,11 +182,11 @@ Traffic flow:
 │                                                                            │
 │  kind-gateway-proxy-istio  (socat container)                               │
 │  · forwards raw TCP from :80 into the kind network                         │
-│  :80  ──────────────────────────────────────────────►  172.18.0.3:80       │
+│  :80  ──────────────────────────────────────────────►  172.18.0.x:80       │
 │                                                                  │         │
 │  kindccm-xxxxxxxxxx  (cloud-provider-kind · Envoy proxy)         │         │
 │  · LoadBalancer implementation for KIND; assigned external IP    │         │
-│  172.18.0.3:80  ◄────────────────────────────────────────────────┘         │
+│  172.18.0.x:80  ◄────────────────────────────────────────────────┘         │
 │  │  routes via nodePort                                                    │
 │  ▼                                                                         │
 │  172.18.0.2:31112                                                          │
