@@ -66,6 +66,44 @@ docker exec -it home-lab-control-plane bash
 root@home-lab-control-plane:/# curl -H 'Host: echo.example.gateway.kind.com' -v 172.18.0.3
 ```
 
+#### Istio Gateway API
+
+Provision cloud provider for load balancer support:
+
+```bash
+task cloud-provider-setup
+```
+
+Install Istio:
+
+```bash
+task istio-setup
+```
+
+Create Istio Gateway:
+
+```bash
+task istio-gateway-setup
+```
+
+Create echo application with Istio sidecar injection:
+
+```bash
+task app-echo-create
+```
+
+Configure HTTPRoute pointing to echo application:
+
+```bash
+task app-echo-istio-create
+```
+
+Check echo application through Istio Gateway:
+
+```bash
+task app-echo-istio-check
+```
+
 ## Cleanup
 
 ```bash
@@ -78,6 +116,7 @@ task docker-clean
 
 * [Kubernetes Ingress NGINX](https://github.com/kubernetes/ingress-nginx)
 * [Istio - Kubernetes Gateway API](https://istio.io/latest/docs/tasks/traffic-management/ingress/gateway-api/)
+* [Istio - Kubernetes Gateway API on KIND](https://istio.io/latest/docs/setup/platform-setup/kind/)
 * [Configure Istio ingress with the Kubernetes Gateway API for Azure Kubernetes Service (AKS)](https://learn.microsoft.com/en-us/azure/aks/istio-gateway-api)
 * [Experimenting with Gateway API using kind](https://kubernetes.io/blog/2026/01/28/experimenting-gateway-api-with-kind/)
 * [Kubernetes Cloud Provider for KIND](https://github.com/kubernetes-sigs/cloud-provider-kind)

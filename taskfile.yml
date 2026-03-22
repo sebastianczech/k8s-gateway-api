@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 tasks:
   docker-clean:
@@ -101,6 +101,11 @@ tasks:
       - kubectl get deployments -n istio-system --output wide
     dir: code
 
+  istio-gateway-setup:
+    cmds:
+      - kubectl apply -f gateway-infra-istio.yaml
+    dir: code
+
   app-podinfo-create:
     cmds:
       - kubectl apply -f app-podinfo.yaml
@@ -134,10 +139,10 @@ tasks:
   app-echo-check:
     cmds:
       - "docker run -d --name kind-gateway-proxy \
-          --network kind \
-          -p 8080:80 \
-          alpine/socat \
-          TCP-LISTEN:80,fork TCP:172.18.0.3:80 || true"
+        --network kind \
+        -p 8080:80 \
+        alpine/socat \
+        TCP-LISTEN:80,fork TCP:172.18.0.3:80 || true"
       - "curl -H 'Host: echo.example.gateway.kind.com' http://localhost:8080"
     dir: code
 
@@ -146,6 +151,21 @@ tasks:
       - kubectl get gateway -n gateway-infra gateway -o yaml
       - kubectl get httproute -n demo echo -o yaml
       - docker logs -f cloud-provider-kind
+    dir: code
+
+  app-echo-istio-create:
+    cmds:
+      - kubectl apply -f app-echo-istio.yaml
+    dir: code
+
+  app-echo-istio-check:
+    cmds:
+      - "docker run -d --name kind-gateway-proxy-istio \
+          --network kind \
+          -p 8081:80 \
+          alpine/socat \
+          TCP-LISTEN:80,fork TCP:$(kubectl get gateway -n gateway-infra-istio gateway -o jsonpath='{.status.addresses[0].value}'):80 || true"
+      - "curl -H 'Host: echo.example.gateway.istio.com' http://localhost:8081"
     dir: code
 
   k9s:
