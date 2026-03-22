@@ -49,7 +49,7 @@ task kind-gateway-setup
 Create echo application:
 
 ```bash
-  task app-echo-kind-create
+task app-echo-kind-create
 ```
 
 Check echo application:
